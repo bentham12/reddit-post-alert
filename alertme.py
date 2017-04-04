@@ -26,7 +26,12 @@ def search(s, t):
 
     base_url = 'https://www.reddit.com/r/' + s + '/search.json?q=' + t
     payload = {'restrict_sr': 'on', 'sort': 'new', 't': 'hour'}
-    r = requests.get(base_url, params=payload, headers={'User-agent': 'reddit post alert'})
+    try:
+        r = requests.get(base_url, params=payload, headers={'User-agent': 'reddit post alert'})
+    except requests.ConnectionError:
+        log_out("Connection error\n\n")
+        time.sleep(300)
+        return
 
     if r.status_code == requests.codes.ok:
         data = r.json()
@@ -65,4 +70,8 @@ if log:
     log_file_name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".txt"
 
 while True:
-    search(subreddit, terms)
+    try:
+        search(subreddit, terms)
+    except KeyboardInterrupt:
+        print("Exiting...")
+        break
